@@ -22,14 +22,24 @@ int main(){
 
     listInsert( &myList, 10, 0 );*/
 
-    listInsert( &myList, 10, 0 );
-    listInsert( &myList, 20, 1 );
-    listInsert( &myList, 30, 2 );
-    listInsert( &myList, 40, 3 );
-    listInsert( &myList, 50, 4 );
-    listInsert( &myList, 101, 0 );
-    listInsert( &myList, 60, 5 );
-    listInsert( &myList, 35, 3 );
+    size_t position = 100;
+
+    position = listInsert( &myList, 10, 0 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 20, 1 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 30, 2 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 40, 3 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 50, 4 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 101, 0 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 60, 5 );
+    printf("Position were was inserted = %lu\n", position );
+    position = listInsert( &myList, 35, 3 );
+    printf("Position were was inserted = %lu\n", position );
 
 
     printList( &myList );

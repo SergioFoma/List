@@ -23,11 +23,13 @@ listErrors initList( List* myList ){
     myList->data[0] = canary;
     myList->data[ startSizeForArray - 1 ] = canary;
 
+    myList->next[ 0 ] = 0;
     for( size_t nextIndex = 1; nextIndex < startSizeForArray - 1; nextIndex++ ){
         myList->next[ nextIndex ] = nextIndex + 1;
     }
     myList->next[ startSizeForArray - 1 ] = 0;
 
+    myList->prev[ 0 ] = 0;
     for( size_t prevIndex = 1; prevIndex < startSizeForArray; prevIndex++ ){
         myList->prev[ prevIndex ] = -1;
     }
@@ -56,6 +58,25 @@ size_t listInsert( List* myList, double number , size_t indexToPush ){
 
     myList->data[ freeIndexNow ] = number;
 
+    // ARRAY PREV
+    if( indexToPush >= myList->tailIndex && indexToPush != 0 ){
+        myList->prev[ freeIndexNow ] = myList->tailIndex;
+        //myList->prev[ myList->prev ] = freeIndexNow;
+    }
+    else if( freeIndexNow != 1 && indexToPush == 0 ){
+        myList->prev[ freeIndexNow ] = myList->prev[ myList->headIndex ];
+        printf("\n__________head Index_______ %lu\n", myList->headIndex );
+        myList->prev[ myList->headIndex ] = freeIndexNow;
+    }
+    else if( freeIndexNow == 1 && indexToPush == 0 ){
+        myList->prev[ freeIndexNow ] = indexToPush;
+    }
+    else{
+        myList->prev[ freeIndexNow ] = indexToPush;
+        myList->prev[ indexToPush + 1 ] = freeIndexNow;
+    }
+
+    // ARRAY NEXT
     myList->next[ freeIndexNow ] = myList->next[ indexToPush ];
     if( indexToPush != 0 ){
         myList->next[ indexToPush ] = freeIndexNow;
@@ -65,21 +86,31 @@ size_t listInsert( List* myList, double number , size_t indexToPush ){
         myList->headIndex = freeIndexNow;
     }
 
-
-    /*printf("\nindexTOPush = %lu\n", indexToPush );
-    printList( myList );*/
+    if( myList->tailIndex <= indexToPush ){
+        myList->tailIndex = freeIndexNow;
+    }
+    printf("\nindexTOPush = %lu\n", indexToPush );
+    printList( myList );
     return freeIndexNow;
 }
 
 void printList( List* myList ){
 
     printf("\nheadIndex = %lu\n", myList->headIndex);
+    printf("tailIndex = %lu\n", myList->tailIndex );
     for( size_t indexList = myList->headIndex; indexList != 0; indexList = myList->next[ indexList ] ){
-        printf("[%ld] = %lg ", indexList, myList->data[ indexList ] );
+        printf( "[%lu] = %lg ", indexList, myList->data[ indexList ] );
     }
     printf("\n");
-    for(size_t indexNext = 1; indexNext < startSizeForArray; indexNext++ ){
-        printf("[%ld] = %d ", indexNext, myList->next[ indexNext ] );
+    for( size_t indexNext = 1; indexNext < startSizeForArray; indexNext++ ){
+        printf( "[%lu] = %d ", indexNext, myList->next[ indexNext ] );
     }
     printf("\n");
+    for( size_t indexPrev = 1; indexPrev < startSizeForArray; indexPrev++ ){
+        printf( "[%lu] = %d ", indexPrev, myList->prev[ indexPrev ] );
+    }
+    printf("\n");
+    /*for( size_t indexList = myList->tailIndex; indexList != 0; indexList = myList->prev[ indexList ] ){
+        printf( "[%lu] = %lg ", indexList, myList->data[ indexList ] );
+    }*/
 }
