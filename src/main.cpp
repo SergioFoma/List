@@ -65,6 +65,7 @@ int main( int argc, char** argv ){
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39.5, position );
     printf("Position were was inserted = %d\n", position );
+    listDelete( &myList, 5 );
 
 
     printList( &myList );
@@ -72,7 +73,7 @@ int main( int argc, char** argv ){
     if( argc > 1 ){
         dumpList( &myList, argv[ 1 ] );
     }
-    
+
     destroyList( &myList );
 
     return 0;

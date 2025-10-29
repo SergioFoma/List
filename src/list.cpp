@@ -98,6 +98,16 @@ int listInsert( List* myList, double number , size_t indexToPush ){
     return (int)freeIndexNow;
 }
 
+void listDelete( List* myList, size_t indexToDelete ){
+    if( indexToDelete == 0 ){
+        myList->headIndex = myList->next[ indexToDelete ] ;
+    }
+    else{
+        myList->next[ myList->prev[ indexToDelete ] ] = myList->next[ indexToDelete ];
+        myList->prev[ myList->next[ indexToDelete ] ] = myList->prev[ indexToDelete ];
+    }
+
+}
 void printList( List* myList ){
 
     printf("\nheadIndex = %lu\n", myList->headIndex);
@@ -161,8 +171,8 @@ listErrors dumpList( List* myList, const char* nameOfGraphFile ){
 
     for( size_t dataIndex = 1; dataIndex < myList->freeIndex - 1; dataIndex++ ){
         fprintf( graphFile, "\tnode%lu -> node%lu[color = \"grey100\"];\n"
-                            "\tnode%lu -> node%lu[ color = \"grey100\"];\n",
-                            dataIndex, dataIndex + 1, dataIndex + 1, dataIndex );
+                            /*"\tnode%lu -> node%lu[ color = \"grey100\"];\n"*/,
+                            dataIndex, dataIndex + 1/*, dataIndex + 1, dataIndex*/ );
     }
 
     for( size_t nextIndex = myList->headIndex; myList->next[ nextIndex ]!= 0; nextIndex = myList->next[ nextIndex ] ){

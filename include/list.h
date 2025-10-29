@@ -37,6 +37,8 @@ void destroyList( List* myList );
 
 int listInsert( List* myList, double number , size_t indexToPush );
 
+void listDelete( List* myList, size_t indexToDelete );
+
 listErrors isEnoughSpaceInList( List* myList, size_t indexToPush );
 
 void printList( List* myList );
