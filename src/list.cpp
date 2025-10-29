@@ -169,13 +169,40 @@ listErrors dumpList( List* myList, const char* nameOfGraphFile ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"green\"];\n", nextIndex, myList->next[ nextIndex ] );
     }
 
-    for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
+    /*for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\"];\n", prevIndex, myList->prev[ prevIndex ] );
-    }
+    }*/
 
     fprintf( graphFile, "}" );
     fclose( graphFile );
 
-    system("dot GRAPHFILE.txt -Tpng -o GRAPHILE.png");
+    system("dot GRAPHFILE.txt -Tpng -o GRAPHFILE.png");
+
+    // HTML
+
+    FILE* htmlDump = fopen( "GRAPHFILE.html", "w" );
+    if( htmlDump == NULL ){
+        return ERROR_OPEN_FILE;
+    }
+
+    fprintf( htmlDump, "<pre>\n"
+                       "<h3> <font color=red> LIST DUMP </font>  <h3>"
+                       "\n\n"
+                       "List { %s:%s:%d }\n\n", __FILE__, __func__, __LINE__ );
+
+    fprintf( htmlDump, "next: \n");
+    for( size_t nextIndex = 1; nextIndex < myList->freeIndex; nextIndex++ ){
+        fprintf( htmlDump, "%d ", myList->next[ nextIndex ] );
+    }
+    fprintf( htmlDump, "\nPrev: \n" );
+
+    for( size_t prevIndex = 1; prevIndex < myList->freeIndex; prevIndex++ ){
+        fprintf( htmlDump, "%d ", myList->prev[ prevIndex ] );
+    }
+
+    fprintf( htmlDump, "\n\nImage:\n"
+                       "<img src=GRAPHFILE.png width = 400px>\n\n");
+
+    fclose( htmlDump );
     return CORRECT;
 }
