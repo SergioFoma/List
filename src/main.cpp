@@ -2,7 +2,7 @@
 
 #include "list.h"
 
-int main(){
+int main( int argc, char** argv ){
 
     List myList = {};
 
@@ -22,7 +22,7 @@ int main(){
 
     listInsert( &myList, 10, 0 );*/
 
-    size_t position = 100;
+    int position = 100;
 
     /*position = listInsert( &myList, 10, 0 );
     printf("Position were was inserted = %lu\n", position );
@@ -42,33 +42,37 @@ int main(){
     printf("Position were was inserted = %lu\n", position );*/
 
     position = listInsert( &myList, 10, 0 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 20, 1 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 30, 2 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 40, 3 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 50, 4 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 60, 5 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 35, 3 );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 36, position );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 37, position );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 38, position );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39, position );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39.5, position );
-    printf("Position were was inserted = %lu\n", position );
+    printf("Position were was inserted = %d\n", position );
 
 
     printList( &myList );
 
+    if( argc > 1 ){
+        dumpList( &myList, argv[ 1 ] );
+    }
+    
     destroyList( &myList );
 
     return 0;

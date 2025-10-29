@@ -9,7 +9,11 @@ enum listErrors {
     LIST_NULL_PTR           = 1,
     DATA_INITIALIZATION_ERR = 2,
     NEXT_INITIALIZATION_ERR = 3,
-    PREV_INITIALIZATION_ERR = 4
+    PREV_INITIALIZATION_ERR = 4,
+    DATA_NULL_PTR           = 5,
+    NEXT_NULL_PTR           = 6,
+    PREV_NULL_PTR           = 7,
+    ERROR_OPEN_FILE         = 8,
 };
 
 struct List{
@@ -19,6 +23,7 @@ struct List{
     size_t freeIndex;
     size_t headIndex;
     size_t tailIndex;
+    size_t sizeOfList;
 };
 
 listErrors initList( List* myList );
@@ -30,8 +35,12 @@ listErrors initList( List* myList );
 
 void destroyList( List* myList );
 
-size_t listInsert( List* myList, double number , size_t indexToPush );
+int listInsert( List* myList, double number , size_t indexToPush );
+
+listErrors isEnoughSpaceInList( List* myList, size_t indexToPush );
 
 void printList( List* myList );
+
+listErrors dumpList( List* myList, const char* nameOfGraphFile );
 
 #endif

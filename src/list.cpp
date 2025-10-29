@@ -20,6 +20,7 @@ listErrors initList( List* myList ){
     myList->freeIndex = 1;
     myList->headIndex = 0;
     myList->tailIndex = 0;
+    myList->sizeOfList = startSizeForArray;
     myList->data[0] = canary;
     myList->data[ startSizeForArray - 1 ] = canary;
 
@@ -44,14 +45,20 @@ void destroyList( List* myList ){
     myList->freeIndex = 0;
     myList->headIndex = 0;
     myList->tailIndex = 0;
+    myList->sizeOfList = 0;
 
     myList->data = NULL;
     myList->next = NULL;
     myList->prev = NULL;
 }
 
-size_t listInsert( List* myList, double number , size_t indexToPush ){
+int listInsert( List* myList, double number , size_t indexToPush ){
     CHECK_PTR( myList, 0 );
+
+    listErrors statusOfMemoryRealloc = isEnoughSpaceInList( myList, indexToPush );
+    if( statusOfMemoryRealloc != CORRECT ){
+        return -1;
+    }
 
     size_t freeIndexNow = myList->freeIndex ;
     myList->freeIndex = myList->next[ freeIndexNow ];
@@ -68,21 +75,6 @@ size_t listInsert( List* myList, double number , size_t indexToPush ){
     }
 
     // ARRAY PREV
-    /*if( indexToPush >= myList->tailIndex && indexToPush != 0 ){
-        myList->prev[ freeIndexNow ] = myList->tailIndex;
-    }
-    else if( freeIndexNow != 1 && indexToPush == 0 ){
-        myList->prev[ freeIndexNow ] = myList->prev[ myList->headIndex ];
-        myList->prev[ myList->headIndex ] = freeIndexNow;
-    }
-    else if( freeIndexNow == 1 && indexToPush == 0 ){
-        myList->prev[ freeIndexNow ] = indexToPush;
-    }
-    else{
-        myList->prev[ freeIndexNow ] = indexToPush;
-        myList->prev[ indexToPush + 1 ] = freeIndexNow;
-    }*/
-
     myList->prev[ freeIndexNow ] = indexToPush;
     if( indexToPush != 0 && myList->next[ freeIndexNow ] != 0 ){
         myList->prev[ myList->next[ freeIndexNow ] ] = freeIndexNow;
@@ -91,15 +83,6 @@ size_t listInsert( List* myList, double number , size_t indexToPush ){
         myList->prev[ freeIndexNow ] = myList->prev[ myList->headIndex ];
         myList->prev[ myList->headIndex ] = freeIndexNow;
     }
-
-
-    /*else if( myList->next[ freeIndexNow ] != 0 ){
-        myList->prev[ freeIndexNow ] = myList->prev[ myList->next[ freeIndexNow ] ];
-    }*/
-    /*else{
-        //printf( "\nprint in else: myList->next[ freeIndexNow ] = %d\n", myList->next[ freeIndexNow ] );
-        myList->prev[ freeIndexNow ] = indexToPush;
-    }*/
 
     // headIndex && tailIndex
 
@@ -112,7 +95,7 @@ size_t listInsert( List* myList, double number , size_t indexToPush ){
 
     printf("\nindexTOPush = %lu\n", indexToPush );
     printList( myList );
-    return freeIndexNow;
+    return (int)freeIndexNow;
 }
 
 void printList( List* myList ){
@@ -131,7 +114,68 @@ void printList( List* myList ){
         printf( "[%lu] = %d ", indexPrev, myList->prev[ indexPrev ] );
     }
     printf("\n");
-    /*for( size_t indexList = myList->tailIndex; indexList != 0; indexList = myList->prev[ indexList ] ){
-        printf( "[%lu] = %lg ", indexList, myList->data[ indexList ] );
-    }*/
+}
+
+listErrors isEnoughSpaceInList( List* myList, size_t indexToPush ){
+    if( indexToPush < myList->sizeOfList ){
+        return CORRECT;
+    }
+
+    myList->sizeOfList *= 2;
+
+    myList->data = (double*)realloc( myList->data, sizeof( double ) * myList->sizeOfList );
+    if( myList->data == NULL ){
+        return DATA_NULL_PTR;
+    }
+
+    myList->next = (int*)realloc( myList->next, sizeof( int ) * myList->sizeOfList );
+    if( myList->next == NULL ){
+        return NEXT_NULL_PTR;
+    }
+
+    myList->prev = (int*)realloc( myList->prev, sizeof( int ) * myList->sizeOfList );
+    if( myList->data == NULL ){
+        return PREV_NULL_PTR;
+    }
+
+    return CORRECT;
+}
+
+listErrors dumpList( List* myList, const char* nameOfGraphFile ){
+    FILE* graphFile = fopen( nameOfGraphFile, "w" );
+    if( graphFile == NULL ){
+        return ERROR_OPEN_FILE;
+    }
+
+    fprintf( graphFile, "digraph G{\n"
+                        "\trankdir = TB;\n"
+                        "\tnode[color = \"red\", fontsize = 14];\n"
+                        "\tedge[color = \"darkgreen\", fontsize = 12];\n"
+            );
+
+    for( size_t physIndex = 1; physIndex < myList->freeIndex; physIndex++ ){
+        fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"azure3\"; label = "
+                            "\"{ physIndex = %lu | elem = %lg | prev = %d | next = %d }\"];\n",
+                            physIndex, physIndex, myList->data[ physIndex ], myList->prev[ physIndex ], myList->next[ physIndex ] );
+    }
+
+    for( size_t dataIndex = 1; dataIndex < myList->freeIndex - 1; dataIndex++ ){
+        fprintf( graphFile, "\tnode%lu -> node%lu[color = \"grey100\"];\n"
+                            "\tnode%lu -> node%lu[ color = \"grey100\"];\n",
+                            dataIndex, dataIndex + 1, dataIndex + 1, dataIndex );
+    }
+
+    for( size_t nextIndex = myList->headIndex; myList->next[ nextIndex ]!= 0; nextIndex = myList->next[ nextIndex ] ){
+        fprintf( graphFile, "\tnode%lu -> node%d[color = \"green\"];\n", nextIndex, myList->next[ nextIndex ] );
+    }
+
+    for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
+        fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\"];\n", prevIndex, myList->prev[ prevIndex ] );
+    }
+
+    fprintf( graphFile, "}" );
+    fclose( graphFile );
+
+    system("dot GRAPHFILE.txt -Tpng -o GRAPHILE.png");
+    return CORRECT;
 }
