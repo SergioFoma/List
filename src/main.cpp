@@ -2,13 +2,17 @@
 
 #include "list.h"
 
-int main( int argc, char** argv ){
+int main(){
 
     List myList = {};
 
-    listErrors err = CORRECT;
+    listErrors err = CORRECT_LIST;
 
-    initList( &myList );
+    err = initList( &myList );
+    if( err != CORRECT_LIST ){
+        printf("\nInit null ptr\n");
+        return 0;
+    }
 
     /*listInsert( &myList, 50, 3 );
 
@@ -40,7 +44,6 @@ int main( int argc, char** argv ){
     printf("Position were was inserted = %lu\n", position );
     position = listInsert( &myList, 35, 3 );
     printf("Position were was inserted = %lu\n", position );*/
-
     position = listInsert( &myList, 10, 0 );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 20, 1 );
@@ -65,14 +68,12 @@ int main( int argc, char** argv ){
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39.5, position );
     printf("Position were was inserted = %d\n", position );
-    listDelete( &myList, 5 );
+    //listDelete( &myList, 5 );
 
 
     printList( &myList );
 
-    if( argc > 1 ){
-        dumpList( &myList, argv[ 1 ] );
-    }
+    dumpList( &myList );
 
     destroyList( &myList );
 

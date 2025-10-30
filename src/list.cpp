@@ -4,9 +4,7 @@
 #include "list.h"
 
 listErrors initList( List* myList ){
-    if( myList == NULL ){
-        return LIST_NULL_PTR;
-    }
+    CHECK_PTR( myList, LIST_NULL_PTR );
 
     myList->data = (double*)calloc( startSizeForArray, sizeof( double ) );
     CHECK_PTR( myList->data, DATA_INITIALIZATION_ERR );
@@ -34,7 +32,7 @@ listErrors initList( List* myList ){
     for( size_t prevIndex = 1; prevIndex < startSizeForArray; prevIndex++ ){
         myList->prev[ prevIndex ] = -1;
     }
-    return CORRECT;
+    return CORRECT_LIST;
 }
 
 void destroyList( List* myList ){
@@ -53,10 +51,10 @@ void destroyList( List* myList ){
 }
 
 int listInsert( List* myList, double number , size_t indexToPush ){
-    CHECK_PTR( myList, 0 );
+    CHECK_LIST( myList, -1 );
 
-    listErrors statusOfMemoryRealloc = isEnoughSpaceInList( myList, indexToPush );
-    if( statusOfMemoryRealloc != CORRECT ){
+    listErrors statusOfMemoryRealloc = reallocateList( myList, indexToPush );
+    if( statusOfMemoryRealloc != CORRECT_LIST ){
         return -1;
     }
 
@@ -99,6 +97,8 @@ int listInsert( List* myList, double number , size_t indexToPush ){
 }
 
 void listDelete( List* myList, size_t indexToDelete ){
+    CHECK_LIST( myList, (void)0 );
+
     if( indexToDelete == 0 ){
         myList->headIndex = myList->next[ indexToDelete ] ;
     }
@@ -109,6 +109,7 @@ void listDelete( List* myList, size_t indexToDelete ){
 
 }
 void printList( List* myList ){
+    CHECK_LIST( myList, (void)0 );
 
     printf("\nheadIndex = %lu\n", myList->headIndex);
     printf("tailIndex = %lu\n", myList->tailIndex );
@@ -126,9 +127,11 @@ void printList( List* myList ){
     printf("\n");
 }
 
-listErrors isEnoughSpaceInList( List* myList, size_t indexToPush ){
+listErrors reallocateList( List* myList, size_t indexToPush ){
+    CHECK_LIST( myList, REALLOCATE_ERROR );
+
     if( indexToPush < myList->sizeOfList ){
-        return CORRECT;
+        return CORRECT_LIST;
     }
 
     myList->sizeOfList *= 2;
@@ -137,6 +140,7 @@ listErrors isEnoughSpaceInList( List* myList, size_t indexToPush ){
     if( myList->data == NULL ){
         return DATA_NULL_PTR;
     }
+    myList->data[ myList->sizeOfList - 1 ] = canary;
 
     myList->next = (int*)realloc( myList->next, sizeof( int ) * myList->sizeOfList );
     if( myList->next == NULL ){
@@ -148,13 +152,16 @@ listErrors isEnoughSpaceInList( List* myList, size_t indexToPush ){
         return PREV_NULL_PTR;
     }
 
-    return CORRECT;
+    return CORRECT_LIST;
 }
 
-listErrors dumpList( List* myList, const char* nameOfGraphFile ){
-    FILE* graphFile = fopen( nameOfGraphFile, "w" );
+listErrors dumpList( List* myList ){
+    CHECK_LIST( myList, DUMP_ERROR );
+
+    FILE* graphFile = fopen( "GRAPHFILE.txt", "w" );
     if( graphFile == NULL ){
         return ERROR_OPEN_FILE;
+        fclose( graphFile );
     }
 
     fprintf( graphFile, "digraph G{\n"
@@ -179,9 +186,9 @@ listErrors dumpList( List* myList, const char* nameOfGraphFile ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"green\"];\n", nextIndex, myList->next[ nextIndex ] );
     }
 
-    /*for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
+    for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\"];\n", prevIndex, myList->prev[ prevIndex ] );
-    }*/
+    }
 
     fprintf( graphFile, "}" );
     fclose( graphFile );
@@ -214,5 +221,26 @@ listErrors dumpList( List* myList, const char* nameOfGraphFile ){
                        "<img src=GRAPHFILE.png width = 400px>\n\n");
 
     fclose( htmlDump );
-    return CORRECT;
+    return CORRECT_LIST;
+}
+
+listErrors listVerify( List* myList ){
+    if( myList == NULL ){
+        return LIST_NULL_PTR;
+    }
+    else if( myList->data == NULL ){
+        return DATA_NULL_PTR;
+    }
+    else if( myList->next == NULL ){
+        return NEXT_NULL_PTR;
+    }
+    else if( myList->prev == NULL ){
+        return PREV_NULL_PTR;
+    }
+
+    if( myList->sizeOfList == 0 ){
+        return SIZE_LIST_ERROR;
+    }
+
+    return CORRECT_LIST;
 }

@@ -5,9 +5,9 @@ digraph G{
 	node1 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 1 | elem = 10 | prev = 0 | next = 2 }"];
 	node2 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 2 | elem = 20 | prev = 1 | next = 3 }"];
 	node3 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 3 | elem = 30 | prev = 2 | next = 7 }"];
-	node4 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 4 | elem = 40 | prev = 12 | next = 6 }"];
+	node4 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 4 | elem = 40 | prev = 12 | next = 5 }"];
 	node5 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 5 | elem = 50 | prev = 4 | next = 6 }"];
-	node6 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 6 | elem = 60 | prev = 4 | next = 0 }"];
+	node6 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 6 | elem = 60 | prev = 5 | next = 0 }"];
 	node7 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 7 | elem = 35 | prev = 3 | next = 8 }"];
 	node8 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 8 | elem = 36 | prev = 7 | next = 9 }"];
 	node9 [shape="Mrecord"; style ="filled"; fillcolor ="azure3"; label = "{ physIndex = 9 | elem = 37 | prev = 8 | next = 10 }"];
@@ -34,5 +34,17 @@ digraph G{
 	node10 -> node11[color = "green"];
 	node11 -> node12[color = "green"];
 	node12 -> node4[color = "green"];
-	node4 -> node6[color = "green"];
+	node4 -> node5[color = "green"];
+	node5 -> node6[color = "green"];
+	node6 -> node5[color = "darkorchid1"];
+	node5 -> node4[color = "darkorchid1"];
+	node4 -> node12[color = "darkorchid1"];
+	node12 -> node11[color = "darkorchid1"];
+	node11 -> node10[color = "darkorchid1"];
+	node10 -> node9[color = "darkorchid1"];
+	node9 -> node8[color = "darkorchid1"];
+	node8 -> node7[color = "darkorchid1"];
+	node7 -> node3[color = "darkorchid1"];
+	node3 -> node2[color = "darkorchid1"];
+	node2 -> node1[color = "darkorchid1"];
 }
