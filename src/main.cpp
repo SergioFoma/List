@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "list.h"
+#include "paint.h"
 
 int main(){
 
@@ -73,6 +74,9 @@ int main(){
     printList( &myList );
 
     dumpList( &myList );
+
+    int indexNumberThatNeedFind = findElement( &myList, 35 );
+    colorPrintf( NOMODE, YELLOW, "Index of element that you want: %d\n", indexNumberThatNeedFind );
 
     destroyList( &myList );
 

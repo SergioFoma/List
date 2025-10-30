@@ -49,6 +49,8 @@ int listInsert( List* myList, listValue number , size_t indexToPush );
 
 listErrors listDelete( List* myList, size_t indexToDelete );
 
+int findElement( List* myList, listValue numberThatNeedFind );
+
 int getHeadIndex( List* myList );
 
 int getTailIndex( List* myList );

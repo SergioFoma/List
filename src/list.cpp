@@ -227,3 +227,14 @@ int getHeadIndex( List* myList ){
 int getTailIndex( List* myList ){
     return myList->prev[ tailPosition ];
 }
+
+int findElement( List* myList, listValue numberThatNeedFind ){
+
+    for( size_t index = 0; index < myList->countOfElement; index++ ){
+        if( myList->data[ index ] == numberThatNeedFind ){
+            return index;
+        }
+    }
+
+    return -1;
+}
