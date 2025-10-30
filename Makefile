@@ -12,7 +12,7 @@ FLAGS = -Wshadow -Winit-self -Wredundant-decls -Wcast-align \
 
 EXE_NAME = $(BUILD_DIR)/Result.exe
 
-SOURCES = main.cpp list.cpp
+SOURCES = main.cpp list.cpp paint.cpp
 OBJECTS = $(SOURCES:.cpp=.obj)
 
 OBJECTS_IN_SOURCE = $(addprefix src/, $(OBJECTS))

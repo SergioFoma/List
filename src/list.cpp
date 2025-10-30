@@ -2,11 +2,12 @@
 #include <stdlib.h>
 
 #include "list.h"
+#include "paint.h"
 
 listErrors initList( List* myList ){
     CHECK_PTR( myList, LIST_NULL_PTR );
 
-    myList->data = (double*)calloc( startSizeForArray, sizeof( double ) );
+    myList->data = (listValue*)calloc( startSizeForArray, sizeof( listValue ) );
     CHECK_PTR( myList->data, DATA_INITIALIZATION_ERR );
 
     myList->next = (int*)calloc( startSizeForArray, sizeof( int ) );
@@ -16,19 +17,18 @@ listErrors initList( List* myList ){
     CHECK_PTR( myList->next, PREV_INITIALIZATION_ERR );
 
     myList->freeIndex = 1;
-    myList->headIndex = 0;
-    myList->tailIndex = 0;
     myList->sizeOfList = startSizeForArray;
+    myList->countOfElement = 1;
     myList->data[0] = canary;
     myList->data[ startSizeForArray - 1 ] = canary;
 
-    myList->next[ 0 ] = 0;
+    myList->next[ headPosition ] = 0;
     for( size_t nextIndex = 1; nextIndex < startSizeForArray - 1; nextIndex++ ){
         myList->next[ nextIndex ] = nextIndex + 1;
     }
     myList->next[ startSizeForArray - 1 ] = 0;
 
-    myList->prev[ 0 ] = 0;
+    myList->prev[ tailPosition ] = 0;
     for( size_t prevIndex = 1; prevIndex < startSizeForArray; prevIndex++ ){
         myList->prev[ prevIndex ] = -1;
     }
@@ -41,16 +41,15 @@ void destroyList( List* myList ){
     free( myList->prev );
 
     myList->freeIndex = 0;
-    myList->headIndex = 0;
-    myList->tailIndex = 0;
     myList->sizeOfList = 0;
+    myList->countOfElement = 0;
 
     myList->data = NULL;
     myList->next = NULL;
     myList->prev = NULL;
 }
 
-int listInsert( List* myList, double number , size_t indexToPush ){
+int listInsert( List* myList, listValue number , size_t indexToPush ){
     CHECK_LIST( myList, -1 );
 
     listErrors statusOfMemoryRealloc = reallocateList( myList, indexToPush );
@@ -65,63 +64,45 @@ int listInsert( List* myList, double number , size_t indexToPush ){
 
     // ARRAY NEXT
     myList->next[ freeIndexNow ] = myList->next[ indexToPush ];
-    if( indexToPush != 0 ){
-        myList->next[ indexToPush ] = freeIndexNow;
-    }
-    else if( freeIndexNow != 1 ){
-        myList->next[ freeIndexNow ] = myList->headIndex;
-    }
+    myList->next[ indexToPush ] = freeIndexNow;
 
     // ARRAY PREV
     myList->prev[ freeIndexNow ] = indexToPush;
-    if( indexToPush != 0 && myList->next[ freeIndexNow ] != 0 ){
-        myList->prev[ myList->next[ freeIndexNow ] ] = freeIndexNow;
-    }
-    else if( freeIndexNow != 1 && indexToPush == 0 ){
-        myList->prev[ freeIndexNow ] = myList->prev[ myList->headIndex ];
-        myList->prev[ myList->headIndex ] = freeIndexNow;
-    }
+    myList->prev[ myList->next[ freeIndexNow ] ] = freeIndexNow;
 
-    // headIndex && tailIndex
+    ++(myList->countOfElement);
 
-    if( indexToPush == 0){
-        myList->headIndex = freeIndexNow;
-    }
-    if( myList->next[ freeIndexNow ] == 0 ){
-        myList->tailIndex = freeIndexNow;
-    }
-
-    printf("\nindexTOPush = %lu\n", indexToPush );
+    printf("\nindexToPush = %lu\n", indexToPush );
     printList( myList );
     return (int)freeIndexNow;
 }
 
-void listDelete( List* myList, size_t indexToDelete ){
-    CHECK_LIST( myList, (void)0 );
+listErrors listDelete( List* myList, size_t indexToDelete ){
+    CHECK_LIST( myList, DELETE_ERROR );
 
-    if( indexToDelete == 0 ){
-        myList->headIndex = myList->next[ indexToDelete ] ;
+    if( myList->countOfElement == 1){
+        colorPrintf( NOMODE, RED, "\nNot enough element in list\n");
+        return NOT_ENOUGH_ELEMENT;
     }
-    else{
-        myList->next[ myList->prev[ indexToDelete ] ] = myList->next[ indexToDelete ];
-        myList->prev[ myList->next[ indexToDelete ] ] = myList->prev[ indexToDelete ];
-    }
+    myList->next[ myList->prev[ indexToDelete + 1 ] ] = myList->next[ indexToDelete + 1 ];
+    myList->prev[ myList->next[ indexToDelete + 1 ] ] = myList->prev[ indexToDelete + 1 ];
 
 }
 void printList( List* myList ){
     CHECK_LIST( myList, (void)0 );
 
-    printf("\nheadIndex = %lu\n", myList->headIndex);
-    printf("tailIndex = %lu\n", myList->tailIndex );
-    for( size_t indexList = myList->headIndex; indexList != 0; indexList = myList->next[ indexList ] ){
-        printf( "[%lu] = %lg ", indexList, myList->data[ indexList ] );
+    printf("\nheadIndex = %d\n", myList->next[ headPosition ] );
+    printf("tailIndex = %d\n", myList->prev[ tailPosition ] );
+    printf( "countOfElement =  %lu\n", myList->countOfElement );
+    for( size_t indexList = myList->next[ headPosition ]; indexList != 0; indexList = myList->next[ indexList ] ){
+        printf( "[%lu] = " listFormat " ", indexList, myList->data[ indexList ] );
     }
     printf("\n");
-    for( size_t indexNext = 1; indexNext < startSizeForArray; indexNext++ ){
+    for( size_t indexNext = 0; indexNext < myList->sizeOfList; indexNext++ ){
         printf( "[%lu] = %d ", indexNext, myList->next[ indexNext ] );
     }
     printf("\n");
-    for( size_t indexPrev = 1; indexPrev < startSizeForArray; indexPrev++ ){
+    for( size_t indexPrev = 0; indexPrev < myList->sizeOfList; indexPrev++ ){
         printf( "[%lu] = %d ", indexPrev, myList->prev[ indexPrev ] );
     }
     printf("\n");
@@ -136,7 +117,7 @@ listErrors reallocateList( List* myList, size_t indexToPush ){
 
     myList->sizeOfList *= 2;
 
-    myList->data = (double*)realloc( myList->data, sizeof( double ) * myList->sizeOfList );
+    myList->data = (listValue*)realloc( myList->data, sizeof( listValue ) * myList->sizeOfList );
     if( myList->data == NULL ){
         return DATA_NULL_PTR;
     }
@@ -170,23 +151,17 @@ listErrors dumpList( List* myList ){
                         "\tedge[color = \"darkgreen\", fontsize = 12];\n"
             );
 
-    for( size_t physIndex = 1; physIndex < myList->freeIndex; physIndex++ ){
+    for( size_t physIndex = 1; physIndex < myList->countOfElement; physIndex++ ){
         fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"azure3\"; label = "
-                            "\"{ physIndex = %lu | elem = %lg | prev = %d | next = %d }\"];\n",
+                            "\"{ physIndex = %lu | elem = " listFormat " | prev = %d | next = %d }\"];\n",
                             physIndex, physIndex, myList->data[ physIndex ], myList->prev[ physIndex ], myList->next[ physIndex ] );
     }
 
-    for( size_t dataIndex = 1; dataIndex < myList->freeIndex - 1; dataIndex++ ){
-        fprintf( graphFile, "\tnode%lu -> node%lu[color = \"grey100\"];\n"
-                            /*"\tnode%lu -> node%lu[ color = \"grey100\"];\n"*/,
-                            dataIndex, dataIndex + 1/*, dataIndex + 1, dataIndex*/ );
-    }
-
-    for( size_t nextIndex = myList->headIndex; myList->next[ nextIndex ]!= 0; nextIndex = myList->next[ nextIndex ] ){
+    for( size_t nextIndex = myList->next[ headPosition ]; myList->next[ nextIndex ]!= 0; nextIndex = myList->next[ nextIndex ] ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"green\"];\n", nextIndex, myList->next[ nextIndex ] );
     }
 
-    for( size_t prevIndex = myList->tailIndex; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
+    for( size_t prevIndex = myList->prev[ tailPosition ]; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\"];\n", prevIndex, myList->prev[ prevIndex ] );
     }
 
@@ -208,12 +183,12 @@ listErrors dumpList( List* myList ){
                        "List { %s:%s:%d }\n\n", __FILE__, __func__, __LINE__ );
 
     fprintf( htmlDump, "next: \n");
-    for( size_t nextIndex = 1; nextIndex < myList->freeIndex; nextIndex++ ){
+    for( size_t nextIndex = 1; nextIndex < myList->countOfElement; nextIndex++ ){
         fprintf( htmlDump, "%d ", myList->next[ nextIndex ] );
     }
     fprintf( htmlDump, "\nPrev: \n" );
 
-    for( size_t prevIndex = 1; prevIndex < myList->freeIndex; prevIndex++ ){
+    for( size_t prevIndex = 1; prevIndex < myList->countOfElement; prevIndex++ ){
         fprintf( htmlDump, "%d ", myList->prev[ prevIndex ] );
     }
 
@@ -243,4 +218,12 @@ listErrors listVerify( List* myList ){
     }
 
     return CORRECT_LIST;
+}
+
+int getHeadIndex( List* myList ){
+    return myList->next[ headPosition ];
+}
+
+int getTailIndex( List* myList ){
+    return myList->prev[ tailPosition ];
 }

@@ -1,8 +1,13 @@
 #ifndef H_LIST
 #define H_LIST
 
+typedef double listValue;
+#define listFormat "%lg"
+
 static const size_t startSizeForArray = 20;
-static const double canary = 179171341; // 0xAADF00D
+static const listValue canary = 179171341;  // 0xAADF00D
+const size_t headPosition = 0;              // next[0]
+const size_t tailPosition = 0;              // prev[0]
 
 enum listErrors {
     CORRECT_LIST            = 0,
@@ -17,17 +22,18 @@ enum listErrors {
     ERROR_OPEN_FILE         = 9,
     SIZE_LIST_ERROR         = 10,
     REALLOCATE_ERROR        = 11,
-    DUMP_ERROR              = 12
+    DUMP_ERROR              = 12,
+    NOT_ENOUGH_ELEMENT      = 13,
+    DELETE_ERROR            = 14
 };
 
 struct List{
-    double* data;
+    listValue* data;
     int* next;
     int* prev;
     size_t freeIndex;
-    size_t headIndex;
-    size_t tailIndex;
     size_t sizeOfList;
+    size_t countOfElement;
 };
 
 #define CHECK_PTR( ptr, err )       \
@@ -39,9 +45,13 @@ listErrors initList( List* myList );
 
 void destroyList( List* myList );
 
-int listInsert( List* myList, double number , size_t indexToPush );
+int listInsert( List* myList, listValue number , size_t indexToPush );
 
-void listDelete( List* myList, size_t indexToDelete );
+listErrors listDelete( List* myList, size_t indexToDelete );
+
+int getHeadIndex( List* myList );
+
+int getTailIndex( List* myList );
 
 listErrors reallocateList( List* myList, size_t indexToPush );
 
