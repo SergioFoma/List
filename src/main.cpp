@@ -68,8 +68,6 @@ int main(){
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39.5, position );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 51, position );
-    printf("Position were was inserted = %d\n", position );
 
     printList( &myList );
 

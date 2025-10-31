@@ -24,7 +24,7 @@ listErrors initList( List* myList ){
 
     myList->next[ headPosition ] = 0;
     for( size_t nextIndex = 1; nextIndex < startSizeForArray - 1; nextIndex++ ){
-        myList->next[ nextIndex ] = nextIndex + 1;
+        myList->next[ nextIndex ] = (int)nextIndex + 1;
     }
     myList->next[ startSizeForArray - 1 ] = 0;
 
@@ -64,11 +64,11 @@ int listInsert( List* myList, listValue number , size_t indexToPush ){
 
     // ARRAY NEXT
     myList->next[ freeIndexNow ] = myList->next[ indexToPush ];
-    myList->next[ indexToPush ] = freeIndexNow;
+    myList->next[ indexToPush ] = (int)freeIndexNow;
 
     // ARRAY PREV
-    myList->prev[ freeIndexNow ] = indexToPush;
-    myList->prev[ myList->next[ freeIndexNow ] ] = freeIndexNow;
+    myList->prev[ freeIndexNow ] = (int)indexToPush;
+    myList->prev[ myList->next[ freeIndexNow ] ] = (int)freeIndexNow;
 
     ++(myList->countOfElement);
 
@@ -84,9 +84,15 @@ listErrors listDelete( List* myList, size_t indexToDelete ){
         colorPrintf( NOMODE, RED, "\nNot enough element in list\n");
         return NOT_ENOUGH_ELEMENT;
     }
-    myList->next[ myList->prev[ indexToDelete + 1 ] ] = myList->next[ indexToDelete + 1 ];
-    myList->prev[ myList->next[ indexToDelete + 1 ] ] = myList->prev[ indexToDelete + 1 ];
+    /*myList->next[ myList->prev[ indexToDelete  ] ] = myList->next[ indexToDelete  ];
+    myList->prev[ myList->next[ indexToDelete  ] ] = myList->prev[ indexToDelete  ];*/
+    myList->next[ indexToDelete ] = (int)(myList->freeIndex);
+    myList->prev[ indexToDelete  ] = -1;
+    /*myList->prev[ indexToDelete ] = myList->next[ indexToDelete ];
+    myList->next[ indexToDelete ] = myList->prev[ indexToDelete ];*/
+    myList->freeIndex = indexToDelete;
 
+    return CORRECT_LIST;
 }
 void printList( List* myList ){
     CHECK_LIST( myList, (void)0 );
@@ -147,23 +153,53 @@ listErrors dumpList( List* myList ){
 
     fprintf( graphFile, "digraph G{\n"
                         "\trankdir = TB;\n"
-                        "\tnode[color = \"red\", fontsize = 14];\n"
-                        "\tedge[color = \"darkgreen\", fontsize = 12];\n"
+                        "\tnode[shape = \"hexagon\", color = \"black\", fontsize = 14, shape = record ];\n"
+                        "\tedge[color = \"red\", fontsize = 12];\n"
+                        "\tnode0 [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"; label = "
+                        "\"{ physIndex = %d | elem = canary | prev = %d | next = %d }\"];\n",
+                        0, myList->prev[ tailPosition ], myList->next[ headPosition ]
             );
 
     for( size_t physIndex = 1; physIndex < myList->countOfElement; physIndex++ ){
-        fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"azure3\"; label = "
-                            "\"{ physIndex = %lu | elem = " listFormat " | prev = %d | next = %d }\"];\n",
-                            physIndex, physIndex, myList->data[ physIndex ], myList->prev[ physIndex ], myList->next[ physIndex ] );
+
+        fprintf( graphFile, "\tnode%lu -> node%d[style = \"invis\", dir = \"both\"];\n",
+                            physIndex, myList->next[ physIndex ] );
+
+    }
+    for( size_t physIndex = 1; physIndex < myList->countOfElement; physIndex++ ){
+        if( myList->next[ headPosition ] == (int)physIndex ){
+            fprintf( graphFile, "\tHEAD [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];"
+                                "HEAD -> node%lu[color = \"blue\"];\n", physIndex );
+        }
+        else if( myList->prev[ tailPosition ] == (int)physIndex ){
+            fprintf( graphFile, "\tTAIL [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];"
+                                "TAIL -> node%lu[color = \"blue\"];\n", physIndex );
+        }
+
+        if( myList->prev[ myList->next[ physIndex ] ] == (int)physIndex ){
+            fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"azure3\"; label = "
+                            "\"{ physIndex = %lu | elem = " listFormat " | prev = %d | next = %d }\"; color = \"red\"];\n",
+                             physIndex, physIndex, myList->data[ physIndex ], myList->prev[ physIndex ], myList->next[ physIndex ] );
+            fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\", dir = \"both\" ];\n", physIndex, myList->next[ physIndex ] );
+        }
+        else{
+            fprintf( graphFile, "\tnode%lu -> node%d[color = \"red\"];\n"
+                                "\tnode%d -> node%d[color = \"orange\"];\n",
+                                physIndex, myList->next[ physIndex ], myList->next[ physIndex ], myList->prev[ myList->next[ physIndex ] ] );
+        }
     }
 
-    for( size_t nextIndex = myList->next[ headPosition ]; myList->next[ nextIndex ]!= 0; nextIndex = myList->next[ nextIndex ] ){
-        fprintf( graphFile, "\tnode%lu -> node%d[color = \"green\"];\n", nextIndex, myList->next[ nextIndex ] );
+    fprintf( graphFile, "\tFREE_ELEMENTS [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];"
+                                "FREE_ELEMENTS -> node%lu[color = \"blue\"];\n", myList->freeIndex );
+    for( size_t freeDataIndex = myList->countOfElement; freeDataIndex < myList->sizeOfList; freeDataIndex++ ){
+        fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"orange\"; label = "
+                            "\"{ physIndex = %lu | freeElement | prev = %d | next = %d }\"; color = \"red\"];\n",
+                            freeDataIndex, freeDataIndex, myList->prev[ freeDataIndex ], myList->next[ freeDataIndex ] );
+    }
+    for( size_t freeDataIndex = myList->countOfElement; freeDataIndex < myList->sizeOfList; freeDataIndex++ ){
+        fprintf( graphFile, "\tnode%lu -> node%d[color = \"pink\"];\n", freeDataIndex, myList->next[ freeDataIndex ] );
     }
 
-    for( size_t prevIndex = myList->prev[ tailPosition ]; myList->prev[ prevIndex ] != 0; prevIndex = myList->prev[ prevIndex ] ){
-        fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\"];\n", prevIndex, myList->prev[ prevIndex ] );
-    }
 
     fprintf( graphFile, "}" );
     fclose( graphFile );
@@ -178,22 +214,22 @@ listErrors dumpList( List* myList ){
     }
 
     fprintf( htmlDump, "<pre>\n"
-                       "<h3> <font color=red> LIST DUMP </font>  <h3>"
+                       "<h1> <font color=red> LIST DUMP </font>  </h1>"
                        "\n\n"
-                       "List { %s:%s:%d }\n\n", __FILE__, __func__, __LINE__ );
+                       "<h1> List { %s:%s:%d } </h1>\n\n", __FILE__, __func__, __LINE__ );
 
-    fprintf( htmlDump, "next: \n");
-    for( size_t nextIndex = 1; nextIndex < myList->countOfElement; nextIndex++ ){
+    fprintf( htmlDump, "<h2 style = \"color: green;\">next: \n");
+    for( size_t nextIndex = 0; nextIndex < myList->countOfElement; nextIndex++ ){
         fprintf( htmlDump, "%d ", myList->next[ nextIndex ] );
     }
-    fprintf( htmlDump, "\nPrev: \n" );
+    fprintf( htmlDump, "</h2>\n\n<h2 style = \"color: orange;\">Prev: \n" );
 
-    for( size_t prevIndex = 1; prevIndex < myList->countOfElement; prevIndex++ ){
+    for( size_t prevIndex = 0; prevIndex < myList->countOfElement; prevIndex++ ){
         fprintf( htmlDump, "%d ", myList->prev[ prevIndex ] );
     }
 
-    fprintf( htmlDump, "\n\nImage:\n"
-                       "<img src=GRAPHFILE.png width = 400px>\n\n");
+    fprintf( htmlDump, "</h2>\n\n<h1>Image:</h1>\n"
+                       "<img src=GRAPHFILE.png width = 300px>\n\n");
 
     fclose( htmlDump );
     return CORRECT_LIST;
@@ -230,8 +266,8 @@ int getTailIndex( List* myList ){
 
 int findElement( List* myList, listValue numberThatNeedFind ){
 
-    for( size_t index = 0; index < myList->countOfElement; index++ ){
-        if( myList->data[ index ] == numberThatNeedFind ){
+    for( int index = 0; index < (int)myList->countOfElement; index++ ){
+        if( abs(myList->data[ index ] - numberThatNeedFind) < epsilon ){
             return index;
         }
     }

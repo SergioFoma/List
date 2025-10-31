@@ -8,6 +8,7 @@ static const size_t startSizeForArray = 20;
 static const listValue canary = 179171341;  // 0xAADF00D
 const size_t headPosition = 0;              // next[0]
 const size_t tailPosition = 0;              // prev[0]
+const double epsilon = 1e-6;
 
 enum listErrors {
     CORRECT_LIST            = 0,
