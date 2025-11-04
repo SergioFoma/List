@@ -84,13 +84,13 @@ listErrors listDelete( List* myList, size_t indexToDelete ){
         colorPrintf( NOMODE, RED, "\nNot enough element in list\n");
         return NOT_ENOUGH_ELEMENT;
     }
-    /*myList->next[ myList->prev[ indexToDelete  ] ] = myList->next[ indexToDelete  ];
-    myList->prev[ myList->next[ indexToDelete  ] ] = myList->prev[ indexToDelete  ];*/
-    myList->next[ indexToDelete ] = (int)(myList->freeIndex);
-    myList->prev[ indexToDelete  ] = -1;
+    myList->next[ myList->prev[ indexToDelete + 1 ] ] = myList->next[ indexToDelete + 1  ];
+    myList->prev[ myList->next[ indexToDelete + 1  ] ] = myList->prev[ indexToDelete + 1  ];
+    myList->next[ indexToDelete + 1] = (int)myList->freeIndex;
+    myList->prev[ indexToDelete + 1 ] = -1;
     /*myList->prev[ indexToDelete ] = myList->next[ indexToDelete ];
     myList->next[ indexToDelete ] = myList->prev[ indexToDelete ];*/
-    myList->freeIndex = indexToDelete;
+    myList->freeIndex = indexToDelete + 1;
 
     return CORRECT_LIST;
 }
@@ -112,6 +112,7 @@ void printList( List* myList ){
         printf( "[%lu] = %d ", indexPrev, myList->prev[ indexPrev ] );
     }
     printf("\n");
+    printf("\nfreeIndex = %lu\n", myList->freeIndex );
 }
 
 listErrors reallocateList( List* myList, size_t indexToPush ){
@@ -156,8 +157,11 @@ listErrors dumpList( List* myList ){
                         "\tnode[shape = \"hexagon\", color = \"black\", fontsize = 14, shape = record ];\n"
                         "\tedge[color = \"red\", fontsize = 12];\n"
                         "\tnode0 [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"; label = "
-                        "\"{ physIndex = %d | elem = canary | prev = %d | next = %d }\"];\n",
-                        0, myList->prev[ tailPosition ], myList->next[ headPosition ]
+                        "\"{ physIndex = %lu | elem = canary | prev = %d | next = %d }\"];\n"
+                        "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"; label = "
+                        "\"{ physIndex = %lu | elem = canary | prev = %d | next = %d }\"];\n",
+                        headPosition, myList->prev[ tailPosition ], myList->next[ headPosition ],
+                        myList->sizeOfList - 1, myList->sizeOfList - 1, myList->prev[ myList->sizeOfList - 1 ], myList->next[ myList->sizeOfList - 1 ]
             );
 
     for( size_t physIndex = 1; physIndex < myList->countOfElement; physIndex++ ){
@@ -172,8 +176,8 @@ listErrors dumpList( List* myList ){
                                 "HEAD -> node%lu[color = \"blue\"];\n", physIndex );
         }
         else if( myList->prev[ tailPosition ] == (int)physIndex ){
-            fprintf( graphFile, "\tTAIL [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];"
-                                "TAIL -> node%lu[color = \"blue\"];\n", physIndex );
+            fprintf( graphFile, "\tTAIL [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];\n"
+                                "\tTAIL -> node%lu[color = \"blue\"];\n", physIndex );
         }
 
         if( myList->prev[ myList->next[ physIndex ] ] == (int)physIndex ){
@@ -182,21 +186,21 @@ listErrors dumpList( List* myList ){
                              physIndex, physIndex, myList->data[ physIndex ], myList->prev[ physIndex ], myList->next[ physIndex ] );
             fprintf( graphFile, "\tnode%lu -> node%d[color = \"darkorchid1\", dir = \"both\" ];\n", physIndex, myList->next[ physIndex ] );
         }
-        else{
+        else if( myList->prev[ physIndex ] != -1 && myList->next[ physIndex ] != 0 ){
             fprintf( graphFile, "\tnode%lu -> node%d[color = \"red\"];\n"
                                 "\tnode%d -> node%d[color = \"orange\"];\n",
                                 physIndex, myList->next[ physIndex ], myList->next[ physIndex ], myList->prev[ myList->next[ physIndex ] ] );
         }
     }
 
-    fprintf( graphFile, "\tFREE_ELEMENTS [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];"
-                                "FREE_ELEMENTS -> node%lu[color = \"blue\"];\n", myList->freeIndex );
-    for( size_t freeDataIndex = myList->countOfElement; freeDataIndex < myList->sizeOfList; freeDataIndex++ ){
+    fprintf( graphFile, "\tFREE_ELEMENTS [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"hotpink2\"; color = \"red\"];\n"
+                                "\tFREE_ELEMENTS -> node%lu[color = \"blue\"];\n", myList->freeIndex );
+    for( size_t freeDataIndex = myList->freeIndex; myList->next[ freeDataIndex ] != 0 ; freeDataIndex = myList->next[ freeDataIndex ] ){
         fprintf( graphFile, "\tnode%lu [shape=\"Mrecord\"; style =\"filled\"; fillcolor =\"orange\"; label = "
                             "\"{ physIndex = %lu | freeElement | prev = %d | next = %d }\"; color = \"red\"];\n",
                             freeDataIndex, freeDataIndex, myList->prev[ freeDataIndex ], myList->next[ freeDataIndex ] );
     }
-    for( size_t freeDataIndex = myList->countOfElement; freeDataIndex < myList->sizeOfList; freeDataIndex++ ){
+    for( size_t freeDataIndex = myList->freeIndex; myList->next[ freeDataIndex ] != 0; freeDataIndex = myList->next[ freeDataIndex ] ){
         fprintf( graphFile, "\tnode%lu -> node%d[color = \"pink\"];\n", freeDataIndex, myList->next[ freeDataIndex ] );
     }
 

@@ -55,8 +55,9 @@ int main(){
     position = listInsert( &myList, 40, 3 );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 50, 4 );
+    //listDelete( &myList, 0 );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 60, 5 );
+    position = listInsert( &myList, 60, 4 );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 35, 3 );
     printf("Position were was inserted = %d\n", position );
@@ -68,6 +69,8 @@ int main(){
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 39.5, position );
     printf("Position were was inserted = %d\n", position );
+    //position = listInsert( &myList, 120, 5 );
+
 
     printList( &myList );
 
