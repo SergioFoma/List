@@ -36,6 +36,8 @@ listErrors initList( List* myList ){
 }
 
 void destroyList( List* myList ){
+    CHECK_PTR( myList, (void)0 );
+
     free( myList->data );
     free( myList->next );
     free( myList->prev );
@@ -63,7 +65,6 @@ int listInsert( List* myList, listValue number , size_t indexToPush ){
 
     size_t freeIndexNow = myList->freeIndex ;
     myList->freeIndex = myList->next[ freeIndexNow ];
-
     myList->data[ freeIndexNow ] = number;
 
     // ARRAY NEXT
@@ -76,8 +77,6 @@ int listInsert( List* myList, listValue number , size_t indexToPush ){
 
     ++(myList->countOfElement);
 
-    printf("\nindexToPush = %lu\n", indexToPush );
-    printList( myList );
     return (int)freeIndexNow;
 }
 
@@ -279,9 +278,9 @@ int getTailIndex( List* myList ){
 
 int findElement( List* myList, listValue numberThatNeedFind ){
 
-    for( int index = 0; index < (int)myList->countOfElement; index++ ){
-        if( abs(myList->data[ index ] - numberThatNeedFind) < epsilon ){
-            return index;
+    for( int dataIndex = 0; dataIndex < (int)myList->countOfElement; dataIndex++ ){
+        if( abs(myList->data[ dataIndex ] - numberThatNeedFind) < epsilon ){
+            return dataIndex;
         }
     }
 
