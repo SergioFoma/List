@@ -15,18 +15,6 @@ int main(){
         return 0;
     }
 
-    /*listInsert( &myList, 50, 3 );
-
-    listInsert( &myList, 60, 4 );
-
-    listInsert( &myList, 40, 3 );
-
-    listInsert( &myList, 30, 2 );
-
-    listInsert( &myList, 20, 1 );
-
-    listInsert( &myList, 10, 0 );*/
-
     int position = 100;
 
     /*position = listInsert( &myList, 10, 0 );
@@ -55,9 +43,9 @@ int main(){
     position = listInsert( &myList, 40, 3 );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 50, 4 );
-    //listDelete( &myList, 0 );
+    //listDelete( &myList, 4 );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 60, 4 );
+    position = listInsert( &myList, 60, position );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 35, 3 );
     printf("Position were was inserted = %d\n", position );
