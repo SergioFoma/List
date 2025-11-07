@@ -25,7 +25,9 @@ enum listErrors {
     REALLOCATE_ERROR        = 11,
     DUMP_ERROR              = 12,
     NOT_ENOUGH_ELEMENT      = 13,
-    DELETE_ERROR            = 14
+    DELETE_ERROR            = 14,
+    ONE_WAY_COMMUNICATION   = 15,
+    LIST_HAVE_CYCLE         = 16,
 };
 
 struct List{
@@ -59,24 +61,5 @@ int getTailIndex( List* myList );
 listErrors reallocateList( List* myList, size_t indexToPush );
 
 void printList( List* myList );
-
-listErrors dumpList( List* myList );
-
-
-#ifdef NDEBUG
-#define CHECK_LIST( List, typeOfError )do{}while(false)
-#else
-
-listErrors listVerify( List* myList );
-
-#define CHECK_LIST( myList, typeOfError )                                \
-    do{                                                                  \
-        if( listVerify( myList ) != CORRECT_LIST ){                      \
-            ( dumpList( myList ) );                                      \
-            return typeOfError;                                          \
-        }                                                                \
-    }while(false)
-
-#endif
 
 #endif

@@ -15,7 +15,13 @@ digraph G{
 	node9 -> node10[style = "invis", dir = "both"];
 	node10 -> node11[style = "invis", dir = "both"];
 	node11 -> node4[style = "invis", dir = "both"];
-	HEAD [shape="box"; style ="filled"; fillcolor ="hotpink2"; color = "red"];HEAD -> node1[color = "blue"];
+	HEAD [shape="box"; style ="filled"; fillcolor ="hotpink2"; color = "red"];
+	{
+		rank = same;
+		HEAD;
+		node1;
+	}
+	HEAD -> node1[color = "blue"];
 	node1 [shape="plain"; style ="filled"; fillcolor ="azure3"; label = <<table><tr><td> physIndex = 1</td></tr> <tr><td> elem = 10 </td></tr> <tr><td> prev = 0 </td></tr> <tr><td> next = 2 </td></tr></table>>; color = "red"];
 	node1 -> node2[color = "darkorchid1", dir = "both" ];
 	node2 [shape="plain"; style ="filled"; fillcolor ="azure3"; label = <<table><tr><td> physIndex = 2</td></tr> <tr><td> elem = 20 </td></tr> <tr><td> prev = 1 </td></tr> <tr><td> next = 3 </td></tr></table>>; color = "red"];
@@ -46,6 +52,11 @@ digraph G{
 	node11 [shape="plain"; style ="filled"; fillcolor ="azure3"; label = <<table><tr><td> physIndex = 11</td></tr> <tr><td> elem = 39.5 </td></tr> <tr><td> prev = 10 </td></tr> <tr><td> next = 4 </td></tr></table>>; color = "red"];
 	node11 -> node4[color = "darkorchid1", dir = "both" ];
 	FREE_ELEMENTS [shape="box"; style ="filled"; fillcolor ="hotpink2"; color = "red"];
+	{
+		rank = same;
+		FREE_ELEMENTS;
+		node12;
+	}
 	FREE_ELEMENTS -> node12[color = "blue"];
 	node12 [shape="plain"; style ="filled"; fillcolor ="orange"; label = <<table><tr><td> physIndex = 12 </td></tr> <tr><td> freeElement </td></tr> <tr><td> prev = -1 </td></tr> <tr><td> next = 13 </td></tr></table>>; color = "red"];
 	node13 [shape="plain"; style ="filled"; fillcolor ="orange"; label = <<table><tr><td> physIndex = 13 </td></tr> <tr><td> freeElement </td></tr> <tr><td> prev = -1 </td></tr> <tr><td> next = 14 </td></tr></table>>; color = "red"];

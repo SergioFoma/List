@@ -1,7 +1,9 @@
 #include <stdio.h>
 
 #include "list.h"
+#include "checkListError.h"
 #include "paint.h"
+
 
 int main(){
 
@@ -28,17 +30,17 @@ int main(){
     position = listInsert( &myList, 50, 4 );
     //listDelete( &myList, 4 );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 60, position );
+    position = listInsert( &myList, 60, (size_t)position );
     printf("Position were was inserted = %d\n", position );
     position = listInsert( &myList, 35, 3 );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 36, position );
+    position = listInsert( &myList, 36, (size_t)position );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 37, position );
+    position = listInsert( &myList, 37, (size_t)position );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 38, position );
+    position = listInsert( &myList, 38, (size_t)position );
     printf("Position were was inserted = %d\n", position );
-    position = listInsert( &myList, 39.5, position );
+    position = listInsert( &myList, 39.5, (size_t)position );
     printf("Position were was inserted = %d\n", position );
     //position = listInsert( &myList, 120, 5 );
 
